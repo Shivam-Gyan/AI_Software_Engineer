@@ -27,3 +27,17 @@ export const loginUserServices=async({email,password})=>{
    
    
 }
+
+export const userProfileService=async(email)=>{
+    if(!email){
+        throw new Error("user not Authorized");
+    }
+    
+    const user=await userModel.findOne({email})
+    
+    if(!user){
+        throw new Error("user not Authorized");
+    }
+
+    return user;
+}

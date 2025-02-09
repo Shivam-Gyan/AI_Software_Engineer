@@ -1,7 +1,7 @@
 import * as userServices from "../database/user.services.js";
 // import userModel from '../model/user.auth.js'
 import { validationResult } from "express-validator";
-
+import redisClient from "../database/redis.config.js";
 
 export const createUser = async (req, res) => {
 
@@ -95,4 +95,36 @@ export const loginUser = async (req, res) => {
             success: false
         });
     }
+}
+
+export const checkProfile=async (req,res)=>{
+    const decoded=req.user
+
+    try {
+        const user=await userServices.userProfileService(decoded.email);
+
+        return res.status(201).json({
+            message:"success fully fetched",
+            success:true,
+            user
+        })
+        
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message,
+            success: false
+        });
+    }
+}
+
+export const logoutUser=async(req,res)=>{
+
+    const token=req.cookies.token || req.headers.authorization.split(' ')[1];
+
+    redisClient.set(token,'logout','EX',60*60*24)
+
+    return res.status(200).json({
+        message:"user Logout ",
+        success:true
+    })
 }
