@@ -1,7 +1,9 @@
+import AppRoute from "./routes/App.route";
+
 const App=()=>{
   return(
-    <div className=" text-3xl">
-      App
+    <div className=" ">
+      <AppRoute/>
     </div>
   )
 }
