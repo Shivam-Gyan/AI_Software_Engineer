@@ -1,6 +1,6 @@
 
 import jwt from 'jsonwebtoken'
-import redisClient from '../database/redis.config.js';
+import redisClient from '../database/config/redis.config.js';
 
 
 

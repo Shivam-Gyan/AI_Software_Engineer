@@ -1,4 +1,4 @@
-import projectModel from "../model/project.model.js";
+import projectModel from "../../model/project.model.js";
 
 
 const projectServices={

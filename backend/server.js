@@ -3,7 +3,7 @@ import 'dotenv/config'
 
 import http from 'http';
 import app from "./app.js"
-import db from './database/database.config.js';
+import db from './database/config/database.config.js';
 // import redisClient from './database/redis.config.js';
 
 

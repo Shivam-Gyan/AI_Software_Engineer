@@ -1,4 +1,4 @@
-import projectServices from "../database/project.services.js";
+import projectServices from "../database/services/project.services.js";
 import userAuth from "../model/user.auth.js";
 import { validationResult } from "express-validator";
 

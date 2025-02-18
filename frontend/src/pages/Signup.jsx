@@ -26,7 +26,7 @@ const Login = () => {
             setPassword("")
         }
 
-        axios.post('/api/user/register', {
+        axios.post('user/register', {
             name, email, password
         }).then((res) => {
             
