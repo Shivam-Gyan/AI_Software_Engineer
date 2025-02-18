@@ -1,14 +1,15 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import axios from "../config/axios.config";
 import { toast } from 'react-hot-toast'
+import { useUser } from "../context/user.context";
 
 const Login = () => {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
-
+    const {user,setUser}=useUser()
     const navigate = useNavigate();
 
     const handleLogin = (e) => {
@@ -25,12 +26,16 @@ const Login = () => {
             setPassword("")
         }
 
-        axios.post('user/register', {
+        axios.post('/api/user/register', {
             name, email, password
         }).then((res) => {
+            
+            setLoading(false)
+            setUser(res.data)
+            console.log(res.data)
+            localStorage.setItem('token', JSON.stringify(res.data.token))
             toast.success(res.data.message);
             EmptyState();
-            setLoading(false);
             navigate('/');
            
         }).catch(error => {
@@ -47,7 +52,8 @@ const Login = () => {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-[88vh] bg-gray-100">
+        <>
+        {!user ?<div className="flex items-center justify-center min-h-[88vh] bg-gray-100">
             <div className="bg-white relative p-3 m-1 sm:m-0 sm:p-8 rounded-lg shadow-lg w-full max-w-md">
 
                 <h2 className="text-2xl font-semibold text-gray-800 text-center">Login</h2>
@@ -111,7 +117,8 @@ const Login = () => {
                     </Link>
                 </p>
             </div>
-        </div>
+        </div>:<Navigate to={'/'}/>}
+        </>
     );
 };
 

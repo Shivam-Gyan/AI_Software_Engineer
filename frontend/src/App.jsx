@@ -1,10 +1,12 @@
+import { UserProvider } from "./context/user.context";
 import AppRoute from "./routes/App.route";
 
 const App=()=>{
+
   return(
-    <div className=" ">
+    <UserProvider>
       <AppRoute/>
-    </div>
+    </UserProvider>
   )
 }
 

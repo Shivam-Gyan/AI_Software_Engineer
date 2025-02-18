@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom';
+import { useUser } from '../context/user.context';
 
 const Navbar = () => {
 
   const [showMenu, setShowMenu] = useState(false);
-  const user = false;
+  const {user,setUser}=useUser();
 
   const navbarConfig = [
     {
