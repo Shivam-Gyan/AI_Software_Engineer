@@ -17,5 +17,9 @@ UserAuthRouter
         userController.loginUser)
     .get('/user_profile',userMiddleware.verifyUser,userController.checkProfile)
     .get('/logout',userMiddleware.verifyUser,userController.logoutUser)
+    .get('/all-user',
+        userMiddleware.verifyUser,
+        userController.getAllUsers
+    )
 
 export default UserAuthRouter;

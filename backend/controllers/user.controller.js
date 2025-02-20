@@ -1,5 +1,5 @@
 import * as userServices from "../database/services/user.services.js";
-// import userModel from '../model/user.auth.js'
+import userModel from '../model/user.auth.js'
 import { validationResult } from "express-validator";
 import redisClient from "../database/config/redis.config.js";
 
@@ -127,4 +127,29 @@ export const logoutUser=async(req,res)=>{
         message:"user Logout ",
         success:true
     })
+}
+
+export const getAllUsers=async(req,res)=>{
+
+    try{
+        const userId=await userModel.findOne({email:req.user.email}).select("_id")
+        const users=await userServices.getAllUsers({userId});
+        if(!users){
+            return res.status(404).json({
+                error:"users not found",
+                message:"Failed to get users"
+            })
+        }
+
+        return res.status(200).json({
+            messgae:"User fetched successfully",
+            users
+        })
+
+    }catch(error){
+        return res.status(500).json({
+            error:"Failed to get all users",
+            message:error.message
+        })
+    }
 }

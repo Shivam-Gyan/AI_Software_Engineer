@@ -51,16 +51,26 @@ const projectController = {
         }
     },
 
-    addUserToProject:async(req,res)=>{
-        try{
-            const {name,email}=req.body;
-            const userId=await userAuth.findOne({email}).select('_id');
+    addUsersToProject:async(req,res)=>{
 
-            const project=await projectServices.addUserToProject({name,userId});
+        const errors=validationResult(req);
+
+        if(!errors.isEmpty()){
+            return res.status(500).json({
+                message:"Validation Error",
+                errors:errors.array()
+            })
+        }
+
+        try{
+            const {projectId,users}=req.body;
+            const userId=await userAuth.findOne({email:req.user.email}).select('_id');
+
+            const project=await projectServices.addUserToProject(projectId,users,{userId:userId._id});
 
             res.status(200).json({
                 success:true,
-                message:'User added to project successfully',
+                message:'Users added to project successfully',
                 project
             })
 
@@ -70,8 +80,30 @@ const projectController = {
                 message:error.message
             })
         }
+    },
+
+    getProjectDetails:async(req,res)=>{
+
+        try{
+            const projectId=req.params.projectId;
+
+            console.log(projectId)
+
+            const projectDetails=await projectServices.getProjectDetails({projectId});
+
+            return res.status(200).json({
+                message:"project fetched successfully",
+                projectDetails
+            })
+        }catch(error){
+            return res.status(500).json({
+                error:"error while fetching project details",
+                messsage:error.message
+            })
+        }
     }
 
+    
 }
 
 export default projectController;

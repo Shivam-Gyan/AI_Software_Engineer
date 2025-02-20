@@ -1,47 +1,91 @@
+import mongoose from "mongoose";
 import projectModel from "../../model/project.model.js";
 
 
-const projectServices={
+const projectServices = {
 
-    createProject:async ({name,userId})=>{
+    createProject: async ({ name, userId }) => {
 
-        if(!name ||!userId){
+        if (!name || !userId) {
             throw new Error('name and userId are required')
         }
 
-        const project=await projectModel.create({
+        const project = await projectModel.create({
             name,
-            users:[userId]
+            users: [userId]
         })
         return project;
     },
 
-    getAllProjects:async({userId})=>{
-        if(!userId){
+    getAllProjects: async ({ userId }) => {
+        if (!userId) {
             throw new Error('userId is required')
         }
 
-        const allUserProjects=await projectModel.find({users:userId}).select('name _id');
+        const allUserProjects = await projectModel.find({ users: userId }).select('name _id');
 
         return allUserProjects;
     },
 
-    addUserToProject:async({name,userId})=>{
-        if(!userId){
-            throw new Error('userId is required');
+    addUserToProject: async (projectId, users, { userId }) => {
+
+        if (!projectId || !mongoose.Types.ObjectId.isValid(projectId)) {
+            throw new Error("Project id is required or Invalid project id")
         }
 
-        const project=await projectModel.findOne({name});
+        if (!users) {
+            throw new Error("users required in order to add");
 
-        if(!project){
-            throw new Error('Project not found');
         }
 
-        project.users.push(userId);
+        if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+            throw new Error("User not authorized to add")
+        }
 
-        await project.save();
+        if (!Array.isArray(users) || users.some((user) => !mongoose.Types.ObjectId.isValid(user))) {
+            throw new Error("invalid Users")
+        }
 
-        return project;
+        const project = await projectModel.findOne({
+            _id: projectId,
+            users: userId
+        });
+
+        if (!project) {
+            throw new Error('Project not found or user not Authorized to add');
+        }
+
+        const updateProject = await projectModel.findOneAndUpdate({ _id: projectId }, {
+            $addToSet: {
+                users: {
+                    $each: users
+                }
+            }
+        }, {
+            new: true
+        })
+
+        return updateProject;
+    },
+
+    getProjectDetails: async ({ projectId }) => {
+
+        if (!projectId || !mongoose.Types.ObjectId.isValid(projectId)) {
+            throw new Error("project not exist or invalid project id")
+        }
+
+        const projectDetails = await projectModel.findOne({
+            _id: projectId,
+        }).populate({
+            path: "users",
+            select: "name email -_id",
+        });
+
+        if (!projectDetails) {
+            throw new Error("project not found");
+        }
+
+        return projectDetails;
     }
 }
 

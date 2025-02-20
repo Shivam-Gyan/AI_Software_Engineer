@@ -12,14 +12,20 @@ projectRouter
         userMiddleware.verifyUser,
         projectController.createProject
     )
-    .post('/all-projects',
+    .get('/all-projects',
         userMiddleware.verifyUser,
         projectController.getAllProjects
     )
-    .post('/add-user',
-        body('name').isString().withMessage('Name is required'),
+    .patch('/add-user',
         userMiddleware.verifyUser,
-        projectController.addUserToProject
+        body('projectId').isString().withMessage('projectId required'),
+        body('users').isArray({ min: 1 }).withMessage("users must be an Array")
+            .custom((users) => users.every(user => typeof user == 'string')).withMessage("user must be string"),
+        projectController.addUsersToProject
     )
+    .get('/project-details/:projectId',
+        projectController.getProjectDetails
+    )
+    
 
 export default projectRouter;
