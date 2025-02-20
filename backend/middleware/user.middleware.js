@@ -6,9 +6,7 @@ import redisClient from '../database/config/redis.config.js';
 
 export const verifyUser = async(req, res, next) => {
 
-    const client_header = req.headers.authorization;
-
-    const client_token = client_header && client_header.split(' ')[1]
+    const client_token=req.header('Authorization').replace('Bearer ','');
     
     if (!client_token) {
         return res.status(400).json({
@@ -26,15 +24,11 @@ export const verifyUser = async(req, res, next) => {
         })
     }
 
-    const decoded = jwt.verify(client_token, process.env.JWT_SECRET)
-
-    if (!decoded) {
-        return res.status(400).json({
-            message: "User not Authorized",
-            success: false
-        })
+    try {
+        const decoded = jwt.verify(client_token, process.env.JWT_SECRET);
+        req.user = decoded;
+        next();
+    } catch (error) {
+        return res.status(401).json({ message: error.message, success: false });
     }
-
-    req.user = decoded;
-    next();
 }

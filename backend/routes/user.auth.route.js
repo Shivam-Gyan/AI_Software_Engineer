@@ -15,7 +15,7 @@ UserAuthRouter
         body('email').isEmail().withMessage('Enter valid email address'),
         body('password').isLength({ min: 6 }).withMessage('Password must be atleast 6 character long'),
         userController.loginUser)
-    .get('/user_profile',userMiddleware.verifyUser,userController.checkProfile)
+    .get('/user-profile',userMiddleware.verifyUser,userController.checkProfile)
     .get('/logout',userMiddleware.verifyUser,userController.logoutUser)
     .get('/all-user',
         userMiddleware.verifyUser,

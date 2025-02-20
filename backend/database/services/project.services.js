@@ -22,7 +22,8 @@ const projectServices = {
             throw new Error('userId is required')
         }
 
-        const allUserProjects = await projectModel.find({ users: userId }).select('name _id');
+        const allUserProjects = await projectModel.find({ users: userId }).select('name _id users').sort({ createdAt: -1 }) // Sort by createdAt (or your timestamp field)
+        .limit(5);;
 
         return allUserProjects;
     },
