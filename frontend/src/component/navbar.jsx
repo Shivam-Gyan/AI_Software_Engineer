@@ -45,7 +45,7 @@ const Navbar = () => {
 
   return (
 
-    <nav className={`sticky z-40  w-full py-4 flex justify-around  sm:justify-center gap-12 sm:gap-16 items-center top-0 p-4 transition-colors duration-100 ${
+    <nav className={`sticky z-40  w-full scroll-m-0 py-4 flex justify-around  sm:justify-center gap-12 sm:gap-16 items-center top-0 p-4 transition-colors duration-100 ${
       isScrolled ? 'bg-white border-b  border-gray-200 ' : ' bg-gradient-to-r from-indigo-800 to-purple-900 text-white '
     }`}>
 

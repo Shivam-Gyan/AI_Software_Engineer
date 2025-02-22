@@ -1,31 +1,38 @@
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import axios from '../config/axios.config'
+import { Link, useParams } from 'react-router-dom'
+import databaseServices from '../Services/database.services'
+import { ChatPanel, ContributorPanel, Footer, Navbar } from '../component'
 
 const ProjectDetails = () => {
 
-    const {projectId}=useParams()
-    const [project,setProject]=useState(null)
+  const { projectId } = useParams()
+  const [project, setProject] = useState(null);
+  const [showContributorBox, setShowContributorBox] = useState(false)
 
-    useEffect(()=>{
-        axios.get(`project/project-details/${projectId}`).then((response)=>{
-            console.log(response)
-            setProject(response.data.projectDetails)
-        }).catch((error)=>{
-            console.error(error)
-        })
-    },[projectId])
+  useEffect(() => {
+    databaseServices.projectDetailsbyId(setProject, projectId)
+  }, [projectId])
   return (
-    <div>
-        <h1>Project Details</h1>
-        <p>{project && project.name}</p>
-        <div>
-            {project && project.users.map((user,index)=>(
-                <p key={index}>{user && user.name}</p>
-            ))}
-        </div>
-    </div>
+    <>
+      {/* <Navbar/> */}
+      {/* h-screen */}
+      <main className='relative w-full flex '>
+
+        <ChatPanel project={project} setShowContributorBox={setShowContributorBox} />
+
+        <section className={`fixed top-0 right-0 h-full min-w-full sm:min-w-96 bg-white shadow-lg transition-transform duration-300 ${showContributorBox ? "translate-x-0" : "translate-x-full"
+          }`}>
+          <ContributorPanel project={project} setShowContributorBox={setShowContributorBox} />
+        </section>
+
+
+      </main>
+
+      <Footer />
+    </>
   )
 }
+
+
 
 export default ProjectDetails

@@ -4,23 +4,19 @@ import { Home, Login, ProjectDetails, Signup } from '../pages';
 import Layout from '../Layout/Layout';
 import { Toaster } from 'react-hot-toast'
 import { useEffect } from 'react';
-import axios from '../config/axios.config';
 import { useUser } from '../context/user.context';
+import databaseServices from '../Services/database.services';
 
 
 
 const AppRoute = () => {
-   const {setUser}= useUser()
+    const { user, setUser } = useUser();
 
-    useEffect(()=>{
-        axios.get("user/user-profile")
-        .then((response)=>{
-            console.log(response.data.user)   
-            setUser(response.data.user)
-        }).catch((error)=>{
-            console.error(error)
-        })
-    },[])
+    useEffect(() => {
+
+        databaseServices.getProfile(setUser)
+
+    }, [setUser])
     return (
         <BrowserRouter>
             <Toaster />
@@ -29,8 +25,8 @@ const AppRoute = () => {
                     <Route index element={<Home />} />
                     <Route path='/login' element={<Login />} />
                     <Route path='/register' element={<Signup />} />
-                    <Route path='/project/:projectId' element={<ProjectDetails />} />
                 </Route>
+                <Route path='/project/:projectId' element={<ProjectDetails />} />
             </Routes>
         </BrowserRouter>
     )

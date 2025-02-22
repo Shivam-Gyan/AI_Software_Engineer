@@ -87,8 +87,6 @@ const projectController = {
         try{
             const projectId=req.params.projectId;
 
-            console.log(projectId)
-
             const projectDetails=await projectServices.getProjectDetails({projectId});
 
             return res.status(200).json({
