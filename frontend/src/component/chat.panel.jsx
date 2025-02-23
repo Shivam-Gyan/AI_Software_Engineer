@@ -1,7 +1,38 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
+import { initializationSocket, receiveMessage, sendMessage } from '../config/socket_io.config';
+import { useUser } from '../context/user.context';
 
-const ChatPanel = ({ project, setShowContributorBox }) => {
+const ChatPanel = ({project,setShowContributorBox }) => {
+
+    const [message, setMessage] = useState("");
+    const { user,project:projectData,setProject } = useUser();
+
+
+    const handleMessageSend = () => {
+
+        // console.log(user,project)
+
+        console.log(message)
+
+        sendMessage("project-message", {
+            message,
+            sender: user._id
+
+        })
+        setMessage("")
+    }
+
+
+    useEffect(() => {
+        // setProject(projectData);
+        // initializationSocket(project?._id);
+
+        receiveMessage('project-message', data => {
+            console.log(data)
+        })
+
+    },[])
     return (
         <section className='left flex flex-col min-w-full sm:min-w-96 '>
 
@@ -16,7 +47,7 @@ const ChatPanel = ({ project, setShowContributorBox }) => {
                 {/* messaging content here */}
                 <div className='message-box flex-grow flex flex-col '>
 
-                    <div className=' flex flex-col max-h-[84vh] overflow-y-scroll scroll-smooth bg-slate-300'  style={{ scrollbarWidth: 'none' }}>
+                    <div className=' flex flex-col max-h-[84vh] overflow-y-scroll scroll-smooth bg-slate-300' style={{ scrollbarWidth: 'none' }}>
 
                         {/* INCOMING message here */}
                         {[1, 2, 3, 4, 5, 6, 7].map((idx) => (
@@ -36,11 +67,15 @@ const ChatPanel = ({ project, setShowContributorBox }) => {
 
                     <input onKeyDown={(e) => {
                         if (e.key === 'Enter') {
-                            console.log('send message');
+                            handleMessageSend();
                         }
-                    }} type="text" placeholder='@ai conversation' className=' placeholder:text-gray-400 bg-gray-100 w-full outline-none py-3 px-3' />
+                    }}
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        type="text" placeholder='@ai conversation' className=' placeholder:text-gray-400 bg-gray-100 w-full outline-none py-3 px-3' />
 
                     <button
+                        onClick={handleMessageSend}
                         className='bg-gradient-to-r from-indigo-800 to-purple-900 cursor-pointer py-3 px-4 text-white flex justify-center items-center'><i className="fi fi-sr-paper-plane-top text-xl"></i>
                     </button>
                 </div>

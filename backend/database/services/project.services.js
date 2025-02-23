@@ -79,7 +79,7 @@ const projectServices = {
             _id: projectId,
         }).populate({
             path: "users",
-            select: "name email -_id",
+            select: "name email _id",
         });
 
         if (!projectDetails) {

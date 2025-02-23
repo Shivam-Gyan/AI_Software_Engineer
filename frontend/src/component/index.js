@@ -6,7 +6,7 @@ import CreateProject from "./project.create.section.jsx";
 import ProjectCard from "./project.card.jsx";
 import ContributorPanel from "./contributors.panel.jsx";
 import ChatPanel from "./chat.panel.jsx";
-
+import CollaboratorCard from "./collaborators.card.jsx";
 
 export {
     Navbar,
@@ -17,4 +17,5 @@ export {
     ProjectCard,
     ContributorPanel,
     ChatPanel,
+    CollaboratorCard,
 }
