@@ -1,4 +1,5 @@
 import axios from "../config/axios.config"
+import { initializationSocket, receiveMessage } from "../config/socket_io.config"
 
 const databaseServices = {
 
@@ -11,21 +12,25 @@ const databaseServices = {
         })
     },
 
-    getProfile:function(setUser){
+    getProfile: function (setUser) {
         axios.get("user/user-profile")
-        .then((response) => {
-            // console.log(response.data.user)
-            setUser(response.data.user)
-        }).catch((error) => {
-            console.error(error)
-        })
+            .then((response) => {
+                // console.log(response.data.user)
+                setUser(response.data.user)
+            }).catch((error) => {
+                console.error(error)
+            })
     },
 
-    projectDetailsbyId:function(setProject,projectId){
-        axios.get(`project/project-details/${projectId}`).then((response)=>{
+    projectDetailsbyId: function (setProject, projectId) {
+        axios.get(`project/project-details/${projectId}`).then((response) => {
             // console.log(response)
             setProject(response.data.projectDetails)
-        }).catch((error)=>{
+            initializationSocket(response.data.projectDetails._id)
+            // receiveMessage('project-message', (data) => {
+            //     console.log(data)
+            // })
+        }).catch((error) => {
             console.error(error)
         })
     }

@@ -1,23 +1,30 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom';
 import { initializationSocket, receiveMessage, sendMessage } from '../config/socket_io.config';
 import { useUser } from '../context/user.context';
 
-const ChatPanel = ({project,setShowContributorBox }) => {
+const ChatPanel = ({ project, setShowContributorBox }) => {
 
     const [message, setMessage] = useState("");
-    const { user,project:projectData,setProject } = useUser();
+    // const [messageRecieve, setMessageRecieve] = useState([])
+    const { user } = useUser();
+
+    const messageAreaRef = useRef();
 
 
     const handleMessageSend = () => {
 
-        // console.log(user,project)
+        Addmessage({
+            message,
+            user,
+            type:"send",
+            time:new Date(Date.now()).toLocaleTimeString([],  { hour: '2-digit', minute: '2-digit', hour12: false })
 
-        console.log(message)
-
+        })
         sendMessage("project-message", {
             message,
-            sender: user._id
+            sender: user._id,
+            
 
         })
         setMessage("")
@@ -25,14 +32,37 @@ const ChatPanel = ({project,setShowContributorBox }) => {
 
 
     useEffect(() => {
-        // setProject(projectData);
-        // initializationSocket(project?._id);
 
-        receiveMessage('project-message', data => {
-            console.log(data)
-        })
+        if (project) {
+            initializationSocket(project._id)
+            receiveMessage('project-message', (data) => {
+                Addmessage({...data,type:"recieve"})
+            })
+        }
 
-    },[])
+    }, [project])
+
+
+    function Addmessage(messageObject) {
+        const messageArea = document.querySelector(".message-area")
+
+        console.log(messageObject)
+        const message = document.createElement('div')
+
+        const addCSS=messageObject.type=='recieve'?"ml-0":"ml-auto"
+        message.classList.add(addCSS,"flex", "gap-3", "items-center", "px-2", "py-3")
+        message.innerHTML = `<div class="bg-white min-w-30 max-w-56 shadow-lg p-3 pb-1 rounded-t-xl ${messageObject.type=='recieve'?"rounded-br-xl":"rounded-bl-xl"} flex flex-col gap-1">
+                                <p class='flex justify-between gap-5 items-center'>
+                                    <span class='text-xs'>@${messageObject.user.email}</span>
+                                    <span class='text-xs'>${messageObject.time}</span>
+                                </p>
+                                <p class="text-sm">${messageObject.message}</p>
+       
+                            </div>
+        `
+
+        messageArea.appendChild(message)
+    }
     return (
         <section className='left flex flex-col min-w-full sm:min-w-96 '>
 
@@ -47,18 +77,24 @@ const ChatPanel = ({project,setShowContributorBox }) => {
                 {/* messaging content here */}
                 <div className='message-box flex-grow flex flex-col '>
 
-                    <div className=' flex flex-col max-h-[84vh] overflow-y-scroll scroll-smooth bg-slate-300' style={{ scrollbarWidth: 'none' }}>
+                    <div ref={messageAreaRef} className='message-area flex flex-col min-h-[100vh] overflow-y-scroll scroll-smooth bg-slate-300' style={{ scrollbarWidth: 'none' }}>
 
                         {/* INCOMING message here */}
-                        {[1, 2, 3, 4, 5, 6, 7].map((idx) => (
-                            <div key={idx} className='incoming-message flex gap-3 items-center px-2 py-3'>
-                                <div className='bg-white max-w-56 shadow-lg p-3 pb-1 rounded-t-xl rounded-br-xl flex flex-col gap-1'>
-                                    <p className='text-sm'>Hello, how can I help you?Lorem ipsum dolor sit</p>
-                                    <p className='text-xs self-end'>8:25</p>
-                                </div>
-                            </div>
+                        {/* {messageRecieve.map((message,idx) => (
+                           
 
-                        ))}
+                        ))} */}
+
+
+                        {/* <div className={` flex gap-3 items-center px-2 py-3`}>
+                            <div className='bg-white min-w-30 max-w-56 shadow-lg p-3 pb-1 rounded-t-xl rounded-br-xl flex flex-col gap-1'>
+                                <p className='text-xs flex justify-between gap-5 items-center'>
+                                    <span className='text-xs'>@sendername</span>
+                                    <span>8:25</span>
+                                </p>
+                                <p className='text-sm'>hello</p>
+                            </div>
+                        </div> */}
                     </div>
                 </div>
 

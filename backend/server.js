@@ -10,6 +10,7 @@ import cors from 'cors'
 import jwt from 'jsonwebtoken'
 import mongoose from 'mongoose';
 import projectModel from './model/project.model.js';
+import userAuth from './model/user.auth.js';
 // import redisClient from './database/redis.config.js';
 
 
@@ -62,14 +63,21 @@ io.use(async(socket,next)=>{
 
 io.on('connection',(socket)=>{
 
-    console.log("socket setup")
+    socket.roomId=socket.project._id.toString()
 
-    socket.join(socket.project._id);
+    socket.join(socket.roomId);
 
 
-    socket.on('project-message',data=>{
-        console.log(data)
-        socket.broadcast.to(socket.project._id).emit('project-message',data)
+    socket.on('project-message',async(data)=>{
+
+       const user=await userAuth.findOne({_id:data.sender});
+
+       const formated={
+        message:data.message,
+        user,
+        time:new Date(Date.now()).toLocaleTimeString([],  { hour: '2-digit', minute: '2-digit', hour12: false })
+       }
+        socket.broadcast.to(socket.roomId).emit('project-message',formated)
     })
 
     socket.on('event',(data)=>{})

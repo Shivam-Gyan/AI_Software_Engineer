@@ -2,28 +2,30 @@ import React, { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import databaseServices from '../Services/database.services'
 import { ChatPanel, ContributorPanel, Footer, Navbar } from '../component'
-import { initializationSocket } from '../config/socket_io.config'
-import { useUser } from '../context/user.context'
+// import { useUser } from '../context/user.context'
+// import { receiveMessage, sendMessage } from '../config/socket_io.config'
 
 
 const ProjectDetails = () => {
 
   const { projectId } = useParams()
-  const {project,setProject}=useUser()
+  const [project, setProject] = useState(null)
   const [showContributorBox, setShowContributorBox] = useState(false)
+
 
   useEffect(() => {
 
-     databaseServices.projectDetailsbyId(setProject, projectId);
+    databaseServices.projectDetailsbyId(setProject, projectId);
 
-     initializationSocket(project._id)
 
   }, [])
+
+
   return (
     <>
       {/* <Navbar/> */}
 
-      <main className='relative w-full flex '>
+      <main className='relative  w-full flex '>
 
         {/* left side chat panel */}
         <ChatPanel project={project} setShowContributorBox={setShowContributorBox} />

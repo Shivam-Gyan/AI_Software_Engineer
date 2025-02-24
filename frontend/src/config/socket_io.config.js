@@ -21,12 +21,10 @@ export const initializationSocket=(projectId)=>{
 // recieve message
 export const receiveMessage=(event,callback)=>{
 
-    socketInstance.on(event,callback);
-    
+    socketInstance.on(event,callback); 
 }
 
 // send message
 export const sendMessage=(event,data)=>{
-
     socketInstance.emit(event,data);
 }
