@@ -40,7 +40,7 @@ const Login = () => {
         }).catch(error => {
             EmptyState()
             setLoading(false)
-            if (error.response.data.errors) {
+            if (error?.response?.data?.errors) {
                 toast.error(error.response.data.errors[0].msg)
             }
             else {

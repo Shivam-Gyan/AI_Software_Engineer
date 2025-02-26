@@ -25,7 +25,8 @@ const ProjectDetails = () => {
     <>
       {/* <Navbar/> */}
 
-      <main className='relative  w-full flex '>
+      <main className='relative h-screen w-screen flex '>
+      {/* <main className='relative h-screen w-full flex '> */}
 
         {/* left side chat panel */}
         <ChatPanel project={project} setShowContributorBox={setShowContributorBox} />

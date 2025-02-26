@@ -4,6 +4,7 @@ import morgan from 'morgan'
 import UserAuthRouter from './routes/user.auth.route.js';
 import cookieParser from 'cookie-parser';
 import projectRouter from './routes/project.router.js';
+import GoogleResponseRouter from './routes/google_ai_response.route.js';
 
 
 // creating express instance variable app
@@ -20,6 +21,7 @@ app.get('/',(req,res)=>{
 })
 app.use('/api/user',UserAuthRouter);
 app.use('/api/project',projectRouter);
+app.use('/api/gemini',GoogleResponseRouter)
 
 export default app;
 
