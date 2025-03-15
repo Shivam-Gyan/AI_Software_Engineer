@@ -303,7 +303,7 @@ const Project = () => {
             </p>
             <h1 className='text-md w-full text-gray-400 capitalize tracking-wide '>"{project && project.name}"</h1>
           </div>
-          {user?.name == project?.createdByUser?.name && <div onClick={()=>setShowCollaboratorPanel(true)} className='flex justify-end w-full cursor-pointer'><i className="fi fi-sr-user-add text-xl text-gray-500"></i></div>}
+          {user?.name == project?.createdByUser?.name && <div onClick={() => setShowCollaboratorPanel(true)} className='flex justify-end w-full cursor-pointer'><i className="fi fi-sr-user-add text-xl text-gray-500"></i></div>}
         </div>
 
         {/* display messages */}
@@ -403,43 +403,102 @@ const Project = () => {
                     <i className="fi fi-ss-folder-download text-xl"></i>
                   </button>
 
+                  <button
+                    className="cursor-pointer text-slate-600 mx-2"
+                    onClick={async () => {
+                      toast.promise(
+                        new Promise(async (resolve, reject) => {
+                          try {
+                            // Mount the file tree in WebContainer
+                            await webcontainer?.mount(fileTree);
+
+                            // Start npm install process
+                            const installProcess = await webcontainer?.spawn("npm", ["install"]);
+
+                            // Capture and log output
+                            installProcess.output.pipeTo(
+                              new WritableStream({
+                                write(chunk) {
+                                  console.log(chunk);
+                                }
+                              })
+                            );
+
+                            // Wait for the process to complete
+                            const exitCode = await installProcess.exit;
+                            if (exitCode === 0) {
+                              resolve("Dependencies installed successfully! 🎉");
+                            } else {
+                              reject("Installation failed ❌");
+                            }
+                          } catch (error) {
+                            reject("Error running npm install ❌");
+                          }
+                        }),
+                        {
+                          loading: "Installing dependencies...",
+                          success: "Dependencies installed successfully",
+                          error: "Failed to install dependencies ❌"
+                        }
+                      );
+                    }}
+                  >
+                    <i className="fi fi-br-download text-xl"></i>
+                  </button>
+
+
                   {/* run server button  */}
                   <button
                     onClick={async () => {
+                      toast.promise(
+                        new Promise(async (resolve, reject) => {
+                          try {
+                            if (runProcess) {
+                              runProcess.kill();
+                            }
 
-                      await webcontainer?.mount(fileTree)
-                      const installProcess = await webcontainer?.spawn("npm", ["install"])
+                            // Start npm process
+                            let tempRunProcess = await webcontainer?.spawn("npm", ["start"]);
 
-                      installProcess.output.pipeTo(new WritableStream({
-                        write(chunk) {
-                          console.log(chunk)
+                            // Capture and log output
+                            tempRunProcess.output.pipeTo(
+                              new WritableStream({
+                                write(chunk) {
+                                  console.log(chunk);
+                                }
+                              })
+                            );
+
+                            setRunProcess(tempRunProcess);
+
+                            // Listen for WebContainer's server-ready event
+                            webcontainer?.on("server-ready", (port, url) => {
+                              console.log(port, url);
+                              setShowCollaboratorPanel(false);
+                              setIFrameUrl(url);
+                              resolve("Server started successfully! 🚀");
+                            });
+
+                            // If server doesn't start, reject promise after timeout
+                            setTimeout(() => {
+                              reject("Server failed to start ❌");
+                            }, 10000);
+                          } catch (error) {
+                            reject("Error running npm start ❌");
+                          }
+                        }),
+                        {
+                          loading: "Starting server...",
+                          success: "Server started successfully! 🚀",
+                          error: "Failed to start the server ❌"
                         }
-                      }))
-
-                      if (runProcess) {
-                        runProcess.kill()
-                      }
-
-                      let tempRunProcess = await webcontainer?.spawn("npm", ["start"]);
-
-                      tempRunProcess.output.pipeTo(new WritableStream({
-                        write(chunk) {
-                          console.log(chunk)
-                        }
-                      }))
-
-                      setRunProcess(tempRunProcess)
-
-                      webcontainer?.on('server-ready', (port, url) => {
-                        console.log(port, url)
-                        setShowCollaboratorPanel(false)
-                        setIFrameUrl(url)
-                      })
-
+                      );
                     }}
-                    className='cursor-pointer text-slate-600 p-2  mr-4'>
+                    className="cursor-pointer text-slate-600 p-2 mr-4"
+                  >
                     <i className="fi fi-sr-play text-xl"></i>
                   </button>
+
 
                 </div>
 
@@ -491,7 +550,7 @@ const Project = () => {
         </div>
       }
 
-      {iFrameUrl &&
+      { showCodePanel &&  iFrameUrl &&
 
         <div className='min-w-96 h-[90vh] flex flex-col px-2 py-3 bg-white items-center justify-center'>
 
