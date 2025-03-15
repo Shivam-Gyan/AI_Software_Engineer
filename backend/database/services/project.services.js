@@ -12,7 +12,8 @@ const projectServices = {
 
         const project = await projectModel.create({
             name,
-            users: [userId]
+            users: [userId],
+            createdBy: userId
         })
         return project;
     },
@@ -69,25 +70,26 @@ const projectServices = {
         return updateProject;
     },
 
-    getProjectDetails: async ({ projectId }) => {
+    // getProjectDetails: async ({ projectId }) => {
 
-        if (!projectId || !mongoose.Types.ObjectId.isValid(projectId)) {
-            throw new Error("project not exist or invalid project id")
-        }
+    //     if (!projectId || !mongoose.Types.ObjectId.isValid(projectId)) {
+    //         throw new Error("project not exist or invalid project id")
+    //     }
 
-        const projectDetails = await projectModel.findOne({
-            _id: projectId,
-        }).populate({
-            path: "users",
-            select: "name email _id",
-        });
+    //     // 67b49e259aeb73f28b3610a6
+    //     const projectDetails = await projectModel.findOne({
+    //         _id: projectId,
+    //     })
+    //         .populate({ path: 'users', select: 'name email _id' }) // Populate users
+    //         .populate({ path: 'createdByUser', select: 'name email _id' }) // Populate createdByUser
+    //         .exec();
 
-        if (!projectDetails) {
-            throw new Error("project not found");
-        }
+    //     if (!projectDetails) {
+    //         throw new Error("project not found");
+    //     }
 
-        return projectDetails;
-    },
+    //     return projectDetails;
+    // },
     updateFileTree: async ({ projectId, fileTree, userId }) => {
 
         console.log(projectId, fileTree);
@@ -127,7 +129,12 @@ const projectServices = {
 
         const projectDetails = await projectModel.findOne({
             _id: projectId,
-        }).populate('fileTreeSaved.savedBy', 'name email  ');
+        })
+        .populate({ path: 'users', select: 'name email _id' }) // Populate users
+        .populate({ path: 'createdByUser', select: 'name email _id' }) // Populate createdByUser
+        .populate('fileTreeSaved.savedBy', 'name email  ')
+        .exec();
+
         if (!projectDetails) {
             throw new Error("project not found");
         }

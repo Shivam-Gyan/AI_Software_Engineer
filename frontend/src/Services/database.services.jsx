@@ -47,6 +47,22 @@ const databaseServices = {
         const response=await axios.get(`project/get-file-tree/${projectId}`)
         return response.data;
     },
+
+     getAllusers :async () => {
+
+        const response=await axios.get("user/all-user");
+
+        return response.data.users;
+    },
+
+    addCollaborators :async (projectId,selectedUser) => {
+        const response=await axios.patch('project/add-user', {
+            projectId,
+            users: selectedUser
+        })
+        return response.data;
+    },
+
 }
 
 export default databaseServices;

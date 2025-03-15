@@ -27,6 +27,10 @@ const projectSchema = new mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:'user'
     }],
+    createdByUser:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'user'
+    },
     fileTreeSaved:[fileTreeSchema]
 })
 

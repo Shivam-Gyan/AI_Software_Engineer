@@ -8,16 +8,20 @@ import Markdown from 'markdown-to-jsx';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/atom-one-dark.css';
 
+import { toast } from 'react-hot-toast';
+
 const Project = () => {
 
   // state variables
   const [project, setProject] = useState(null)
-  const [showCollaboratorPanel, setShowCollaboratorPanel] = useState(false);
+  const [showCollaboratorPanel, setShowCollaboratorPanel] = useState(true);
   const [message, setMessage] = useState(""); //message state
   const [messages, setMessages] = useState([]); // Store messages in state
-  const [showChatPanel, setShowChatPanel] = useState(false);
-  const [showCodePanel, setShowCodePanel] = useState(true);
+  const [showChatPanel, setShowChatPanel] = useState(true);
+  const [showCodePanel, setShowCodePanel] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [allUsers, setAllUsers] = useState([])
+  const [selectedUser, setSelectedUser] = useState([]);
 
 
   const [webcontainer, setWebcontainer] = useState(null)
@@ -32,7 +36,7 @@ const Project = () => {
 
   const [openFiles, setOpenFiles] = useState([]);
 
-  const [fileTreeLastSavedBy,setFileTreeLastSavedBy]=useState(null)
+  const [fileTreeLastSavedBy, setFileTreeLastSavedBy] = useState(null)
 
 
 
@@ -89,6 +93,8 @@ const Project = () => {
         try {
           const parsedMessage = JSON.parse(data.message);
           if (parsedMessage.fileTree) {
+            setShowCollaboratorPanel(false)
+            setShowCodePanel(true)
             setFileTree(parsedMessage.fileTree);
           }
           setMessages((prevMessages) => [...prevMessages, { ...data, type: "receive" }]); // Store received message in state
@@ -121,11 +127,18 @@ const Project = () => {
 
     databaseServices.projectDetailsbyId(setProject, projectId);
 
+    databaseServices.getAllusers().then((response) => {
+      console.log("response", response)
+      setAllUsers(response)
+    }).catch((error) => {
+      console.log(error)
+    })
+
     databaseServices.getFileTree(projectId)
       .then((response) => {
         console.log(response)
         setFileTree(response.projectDetails.fileTreeSaved[0].fileTree)
-        setFileTreeLastSavedBy({...response.projectDetails.fileTreeSaved[0].savedBy,savedAt:response.projectDetails.fileTreeSaved[0].updatedAt})
+        setFileTreeLastSavedBy({ ...response.projectDetails.fileTreeSaved[0].savedBy, savedAt: response.projectDetails.fileTreeSaved[0].updatedAt })
       })
       .catch((error) => {
         console.error(error)
@@ -144,10 +157,21 @@ const Project = () => {
   const saveFileTree = async () => {
     try {
       const response = await databaseServices.updateFileTree(projectId, fileTree)
+      toast.success("project saved successfully")
       // setFileTree(response.project.fileTreeSaved[0].fileTree)
     } catch (error) {
       console.log(error)
     }
+  }
+
+  const AddCollaborators = async () => {
+    await databaseServices.addCollaborators(projectId, selectedUser)
+      .then((res) => {
+        toast.success("Collaborators added successfully")
+        setSelectedUser([])
+      }).catch(error => {
+        console.log(error.message)
+      })
   }
 
   return (
@@ -188,7 +212,7 @@ const Project = () => {
 
         {/* search-bar  */}
         <div className='search-bar w-full h-12 bg-white shadow-blue-200 shadow-xl rounded-xl flex items-center justify-between px-4'>
-          <div className='mt-2' ><i className="fi </div>fi-rs-search text-lg text-slate-900 "></i></div>
+          <div className='mt-2 cursor-pointer ' ><i className="fi fi-rs-search text-lg text-slate-900 "></i></div>
           <input type='text' placeholder='search collaborators' className='px-3 w-full outline-none' />
         </div>
 
@@ -203,6 +227,13 @@ const Project = () => {
               <div key={collaborator._id} className='border-b-[1px] border-gray-300 flex items-center justify-start gap-2 py-2'>
                 <div className='w-10 h-10 cursor-pointer bg-gray-200 rounded-full'></div>
                 <p className='text-sm hover:underline hover:text-blue-500 cursor-pointer'>{collaborator.email}</p>
+                <span>
+                  {
+                    collaborator?.name == project?.createdByUser?.name ?
+                      <span className='px-2 font-medium  rounded-full py-1 text-sm bg-indigo-600 text-white'>Admin</span> :
+                      <span className='px-2  font-medium rounded-full py-1 text-sm bg-indigo-600 text-white'>Collaborator</span>
+                  }
+                </span>
               </div>
             ))}
 
@@ -213,14 +244,36 @@ const Project = () => {
         {/* discover people */}
         <div className='collaborators w-full bg-white shadow-blue-200 shadow-xl rounded-xl pb-2'>
 
-          <h1 className='text-xl font-medium px-5 pt-3 pb-2'>Discover people</h1>
+          <div className='flex items-center justify-between px-5 pt-3 pb-2'>
+            <p className='text-xl font-medium '>Discover people</p>
+            <button className='cursor-pointer px-3 py-1 text-sm font-medium rounded-full bg-indigo-600 text-white' onClick={AddCollaborators}>Add </button>
+          </div>
 
           {/* list of collaborators */}
-          <div className=' overflow-y-scroll scroll-smooth max-h-[30vh] px-3 pt-2 pb-4' style={{ scrollbarWidth: 'none' }}>
-            {['Michael Scott', 'Pam Beesly', 'Jim Halpert', 'Dwight Schrute'].map((collaborator, index) => (
-              <div key={index} className='flex items-center justify-start gap-2 mb-2'>
-                <div className='w-10 h-10 bg-gray-200 rounded-full'></div>
-                <p className='text-sm '>{collaborator}</p>
+          <div className=' overflow-y-scroll scroll-smooth min-h-[30vh] px-3 pt-2 pb-4' style={{ scrollbarWidth: 'none' }}>
+            {allUsers && allUsers.map((collaborator, index) => (
+              <div
+                key={index}
+
+                className='flex items-center justify-between pr-4 gap-2 mb-2'>
+                <div className='flex items-center gap-2'>
+                  <div className='w-10 h-10 bg-gray-200 rounded-full'></div>
+                  <p className='text-sm '>{collaborator.name}</p>
+                </div>
+
+                <button
+                  onClick={() => setSelectedUser(prev =>
+                    prev.includes(collaborator._id) ? prev.filter(userId => userId !== collaborator._id) : [...prev, collaborator._id]
+                  )}
+                  className='cursor-pointer '>
+                  {user?.name == project?.createdByUser?.name &&
+                    <i className={`fi fi-${selectedUser.indexOf(collaborator._id) != -1
+                      ? "sr-square-plus text-indigo-600"
+                      : "rr-square-plus"
+                      }`}></i>
+
+                  }
+                </button>
               </div>
             ))}
           </div>
@@ -237,8 +290,20 @@ const Project = () => {
 
         <div className='chat-nav-panel w-full border-b-2 border-slate-200 pb-2 flex items-center justify-start gap-4 px-4 py-4'>
           <div className='user-pic min-w-12 h-12 rounded-full bg-gray-300'></div>
-          <h1 className='text-lg w-full text-gray-400'>{project && project.name}</h1>
-          <div className='flex justify-end w-full cursor-pointer'><i className="fi fi-sr-user-add text-xl text-gray-500"></i></div>
+          <div className='flex w-full flex-col items-start justify-start gap-1'>
+            <p className='flex w-full gap-2'>
+              <span className='font-medium capitalize'>{user?.name}</span>
+              <span>
+                {
+                  user?.name == project?.createdByUser?.name ?
+                    <span className='px-2 font-medium  rounded-full py-1 text-sm bg-indigo-600 text-white'>Admin</span> :
+                    <span className='px-2  font-medium rounded-full py-1 text-sm bg-indigo-600 text-white'>Collaborator</span>
+                }
+              </span>
+            </p>
+            <h1 className='text-md w-full text-gray-400 capitalize tracking-wide '>"{project && project.name}"</h1>
+          </div>
+          {user?.name == project?.createdByUser?.name && <div onClick={()=>setShowCollaboratorPanel(true)} className='flex justify-end w-full cursor-pointer'><i className="fi fi-sr-user-add text-xl text-gray-500"></i></div>}
         </div>
 
         {/* display messages */}
