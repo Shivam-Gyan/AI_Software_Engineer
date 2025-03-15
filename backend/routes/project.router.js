@@ -26,6 +26,15 @@ projectRouter
     .get('/project-details/:projectId',
         projectController.getProjectDetails
     )
-    
+    .put('/update-file-tree',
+        userMiddleware.verifyUser,
+        body('projectId').isString().withMessage('projectId required'),
+        body('fileTree').isObject().withMessage('fileTree required'),
+        projectController.updateFileTree
+    )
+    .get('/get-file-tree/:projectId',
+        userMiddleware.verifyUser,
+        projectController.getFileTree
+    )
 
 export default projectRouter;

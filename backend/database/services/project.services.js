@@ -23,7 +23,7 @@ const projectServices = {
         }
 
         const allUserProjects = await projectModel.find({ users: userId }).select('name _id users').sort({ createdAt: -1 }) // Sort by createdAt (or your timestamp field)
-        .limit(5);;
+            .limit(5);;
 
         return allUserProjects;
     },
@@ -86,6 +86,51 @@ const projectServices = {
             throw new Error("project not found");
         }
 
+        return projectDetails;
+    },
+    updateFileTree: async ({ projectId, fileTree, userId }) => {
+
+        console.log(projectId, fileTree);
+
+        if (!projectId || !mongoose.Types.ObjectId.isValid(projectId)) {
+            throw new Error("project not exist or invalid project id")
+        }
+
+        if (typeof fileTree !== 'object' || fileTree === null || Array.isArray(fileTree)) {
+            throw new Error("fileTree must be a not-null object");
+        }
+
+        const fileTreeSaved = {
+            fileTree,
+            savedBy: userId
+        };
+
+        const project = await projectModel.findOneAndUpdate({
+            _id: projectId
+        }, {
+            fileTreeSaved: fileTreeSaved
+        }, {
+            new: true,
+            runValidators: true
+        });
+
+        if (!project) {
+            throw new Error("project not found");
+        }
+    },
+
+    getProjectDetails: async ({ projectId }) => {
+
+        if (!projectId || !mongoose.Types.ObjectId.isValid(projectId)) {
+            throw new Error("project not exist or invalid project id")
+        }
+
+        const projectDetails = await projectModel.findOne({
+            _id: projectId,
+        }).populate('fileTreeSaved.savedBy', 'name email  ');
+        if (!projectDetails) {
+            throw new Error("project not found");
+        }
         return projectDetails;
     }
 }

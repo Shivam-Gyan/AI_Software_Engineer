@@ -1,6 +1,20 @@
 import mongoose from 'mongoose';
 
 
+
+const fileTreeSchema = new mongoose.Schema({
+
+    fileTree:{
+        type:Object,
+        default:{}
+    },
+    savedBy:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'user'
+    }
+
+},{timestamps:true})
+
 const projectSchema = new mongoose.Schema({
     name:{
         type:String,
@@ -12,7 +26,8 @@ const projectSchema = new mongoose.Schema({
     users:[{
         type:mongoose.Schema.Types.ObjectId,
         ref:'user'
-    }]
+    }],
+    fileTreeSaved:[fileTreeSchema]
 })
 
 export default mongoose.model('project',projectSchema)

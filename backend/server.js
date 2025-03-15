@@ -66,6 +66,8 @@ io.use(async (socket, next) => {
 
 io.on('connection', (socket) => {
 
+    console.log("connected", socket.user.email, socket.project._id)
+
     socket.roomId = socket.project._id.toString()
 
     socket.join(socket.roomId);

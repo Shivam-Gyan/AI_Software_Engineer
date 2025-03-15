@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import ProjectCard from './project.card';
 import { useUser } from '../context/user.context';
 import axios from '../config/axios.config';
-
 const CreateProject = () => {
 
     const [projectName, setProjectName] = useState('');
@@ -47,6 +46,7 @@ const CreateProject = () => {
             {projects ? <div className='flex flex-wrap gap-5 items-center justify-center mt-7'>
                 {projects.map((project, index) => (
                     <ProjectCard key={index} project={project} />
+                   
                 ))}
             </div> : <div className='flex items-center justify-center mt-7'>
                 <img src="https://assets-v2.lottiefiles.com/a/0953d504-117d-11ee-aa49-1f149204cb5f/9uZcoEJaoF.gif" alt="" />

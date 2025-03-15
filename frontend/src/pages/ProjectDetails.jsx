@@ -25,16 +25,30 @@ const ProjectDetails = () => {
     <>
       {/* <Navbar/> */}
 
-      <main className='relative h-screen w-screen flex '>
-      {/* <main className='relative h-screen w-full flex '> */}
+      <main className='relative h-screen w-screen flex flex-col sm:flex-row '>
+        {/* <main className='relative h-screen w-full flex '> */}
 
         {/* left side chat panel */}
         <ChatPanel project={project} setShowContributorBox={setShowContributorBox} />
 
         {/* slideing panel of contributor */}
-        <section className={`fixed top-0 right-0 h-full min-w-full sm:min-w-96 bg-white shadow-lg transition-transform duration-300 ${showContributorBox ? "translate-x-0" : "translate-x-full"
-          }`}>
+        <section >
           <ContributorPanel project={project} showContributorBox={showContributorBox} setShowContributorBox={setShowContributorBox} />
+        </section>
+
+        <section className='right bg-red-50 flex-grow h-full'>
+
+          <div className='max-w-56 min-w-52 bg-slate-200 py-3 h-full '>
+            <div className='file-tree '>
+              <div className='tree-element p-2 px-4 flex item-center'>
+                <p className='text-lg font-medium'>
+                  app.js
+                </p>
+              </div>
+            </div>
+          </div>
+
+
         </section>
 
       </main>

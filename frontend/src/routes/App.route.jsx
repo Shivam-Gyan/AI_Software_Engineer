@@ -1,6 +1,6 @@
 
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import { Home, Login, ProjectDetails, Signup } from '../pages';
+import { Home, Login, Project, ProjectDetails, Signup } from '../pages';
 import Layout from '../Layout/Layout';
 import { Toaster } from 'react-hot-toast'
 import { useEffect } from 'react';
@@ -26,7 +26,9 @@ const AppRoute = () => {
                     <Route path='/login' element={<Login />} />
                     <Route path='/register' element={<Signup />} />
                 </Route>
-                <Route path='/project/:projectId' element={<ProjectDetails />} />
+                {/* <Route path='/project/:projectId' element={<ProjectDetails />} /> */}
+                <Route path='/project/:projectId' element={<Project/>} />
+                {/* <Route path='/project' element={<Project/>} /> */}
             </Routes>
         </BrowserRouter>
     )

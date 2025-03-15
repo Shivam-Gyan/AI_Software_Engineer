@@ -1,11 +1,18 @@
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { initializationSocket, receiveMessage, sendMessage } from '../config/socket_io.config';
+// import { initializationSocket, receiveMessage, sendMessage } from '../config/socket_io.config';
 import { useUser } from '../context/user.context';
 import Markdown from 'markdown-to-jsx';
 
 const ChatPanel = ({ project, setShowContributorBox }) => {
+
+    const memoizedProject=useMemo(() => {
+        if (project) {
+            initializationSocket(project._id);
+        }
+    }, [project]);
+
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]); // Store messages in state
     const { user } = useUser();
@@ -20,9 +27,6 @@ const ChatPanel = ({ project, setShowContributorBox }) => {
             type: "send",
             time: new Date(Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
         };
-
-      
-
         setMessages((prevMessages) => [...prevMessages, newMessage]); // Add message to state
         sendMessage("project-message", {
             message,
@@ -31,9 +35,20 @@ const ChatPanel = ({ project, setShowContributorBox }) => {
         setMessage(""); // Clear input
     };
 
+    const AiMessageRendering=(message)=>{
+
+        const messageObject=JSON.parse(message)
+
+        return (
+            <div style={{ scrollbarWidth: 'none' }} className={`p-1 pr-2 pb-2 mr-1 max-w-full rounded-md scroll overflow-auto bg-slate-700 text-white w-full text-sm`}>
+                <Markdown>{messageObject.text}</Markdown>
+            </div> 
+        )
+    }
+
     useEffect(() => {
         if (project) {
-            initializationSocket(project._id);
+            
             receiveMessage('project-message', (data) => {
                 setMessages((prevMessages) => [...prevMessages, { ...data, type: "receive" }]); // Store received message
 
@@ -49,7 +64,7 @@ const ChatPanel = ({ project, setShowContributorBox }) => {
     }, [messages]);
 
     return (
-        <section className='left relative h-screen flex flex-col min-w-96 '>
+        <section className='left relative h-screen flex flex-col min-w-96 z-20 '>
             <header className="flex justify-between bg-gradient-to-r from-indigo-800 to-purple-900 items-center p-2 px-4 w-full absolute z-10 top-0">
                 <Link to={'/'} className='cursor-pointer'><i className="fi fi-rs-arrow-alt-circle-left text-white text-2xl"></i></Link>
                 <button onClick={() => setShowContributorBox(prev => !prev)} className='bg-slate-200 flex justify-center items-center w-9 h-9 rounded-full cursor-pointer'><i className="fi fi-ss-users"></i></button>
@@ -69,9 +84,7 @@ const ChatPanel = ({ project, setShowContributorBox }) => {
                                     </p>
                                     <div className="text-sm">
                                         { msg.user._id=="ai"?
-                                        <div style={{ scrollbarWidth: 'none' }} className={`p-1 pr-2 pb-2 mr-1 max-w-full rounded-md scroll overflow-auto bg-slate-700 text-white w-full text-sm`}>
-                                            <Markdown>{msg.message}</Markdown>
-                                        </div> :
+                                       AiMessageRendering(msg.message):
                                         msg.message
                                         }
                                     </div>

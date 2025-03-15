@@ -1,5 +1,5 @@
 import axios from "../config/axios.config"
-import { initializationSocket, receiveMessage } from "../config/socket_io.config"
+// import { initializationSocket, receiveMessage } from "../config/socket_io.config"
 
 const databaseServices = {
 
@@ -26,14 +26,27 @@ const databaseServices = {
         axios.get(`project/project-details/${projectId}`).then((response) => {
             // console.log(response)
             setProject(response.data.projectDetails)
-            initializationSocket(response.data.projectDetails._id)
+            // initializationSocket(response.data.projectDetails._id)
             // receiveMessage('project-message', (data) => {
             //     console.log(data)
             // })
         }).catch((error) => {
             console.error(error)
         })
-    }
+    },
+    updateFileTree:async function (projectId, fileTree) {
+
+        console.log(projectId, fileTree)
+        const response=await axios.put('project/update-file-tree', { projectId, fileTree })
+        if(!response.data.success){
+            throw new Error(response.data.message)
+        }
+        return response.data;
+    },
+    getFileTree:async function (projectId) {
+        const response=await axios.get(`project/get-file-tree/${projectId}`)
+        return response.data;
+    },
 }
 
 export default databaseServices;

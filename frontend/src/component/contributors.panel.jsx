@@ -41,7 +41,8 @@ const ContributorPanel = ({ project, setShowContributorBox, showContributorBox }
     }, [])
 
     return (
-        <div className='bottom-0 h-screen shadow-md min-w-full sm:min-w-96 rounded-md bg-slate-100 gap-3 flex flex-col'>
+        <div className={`absolute right-0 bottom-0 h-screen z-30 shadow-md min-w-full sm:min-w-96 rounded-md bg-slate-100 gap-3 flex flex-col transition-transform duration-300 ${showContributorBox ? "translate-x-0" : "translate-x-full"
+                  }`} >
 
             <div className='flex justify-between p-3 px-5'>
                 <h1 className='text-xl'>People</h1>

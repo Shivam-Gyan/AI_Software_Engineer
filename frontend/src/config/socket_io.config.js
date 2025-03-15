@@ -15,16 +15,18 @@ export const initializationSocket=(projectId)=>{
             projectId:projectId
         }
     })
+
+    return socketInstance;
 }
 
 
-// recieve message
-export const receiveMessage=(event,callback)=>{
+// // recieve message
+// export const receiveMessage=(event,callback)=>{
 
-    socketInstance.on(event,callback); 
-}
+//     socketInstance.on(event,callback); 
+// }
 
-// send message
-export const sendMessage=(event,data)=>{
-    socketInstance.emit(event,data);
-}
+// // send message
+// export const sendMessage=(event,data)=>{
+//     socketInstance.emit(event,data);
+// }
